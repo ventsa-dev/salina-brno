@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Šalina</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #1D2030;
+      color: #E8DEC8;
+      font-family: 'Inter', Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      gap: 32px;
+    }
+
+    /* Dvě sekce — CSS Grid, čisté zalamování */
+    .sections {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: 64px;
+      row-gap: 48px;
+      width: 100%;
+      max-width: 1100px;
+      align-items: start;
+    }
+
+    @media (max-width: 700px) {
+      .sections {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .section {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Nadpis sekce */
+    .section-title {
+      text-align: center;
+    }
+
+    .highlight {
+      display: inline-block;
+      color: #fff;
+      font-size: 2rem;
+      font-weight: 700;
+      padding: 2px 20px 4px;
+      border-radius: 10px;
+      letter-spacing: 1px;
+    }
+
+    .highlight-salina  { background: #363A4A; color: #E8DEC8; }
+    .highlight-trolej  { background: #9E8E7A; color: #1D2030; }
+
+    /* Sloupce uvnitř sekce */
+    .columns {
+      display: flex;
+      gap: 16px;
+    }
+
+    .column {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Směrový popis */
+    .direction-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #9E8E7A;
+      white-space: nowrap;
+    }
+
+    .column-centrum .direction-label  { text-align: left; }
+    .column-centrum .card             { text-align: left; }
+
+    .column-stefanikova .direction-label { text-align: right; }
+    .column-stefanikova .card            { text-align: right; }
+
+    .column-trolejbus .direction-label { text-align: left; }
+    .column-trolejbus .card            { text-align: left; }
+
+    /* Číslo linky — absolutně v pravém horním rohu */
+    .card-line {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      background: #363A4A;
+      color: #E8DEC8;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 5px;
+      letter-spacing: 1px;
+    }
+
+    /* Kartička */
+    .card {
+      position: relative;
+      background: #252838;
+      border: 1px solid #363A4A;
+      border-radius: 16px;
+      padding: 20px 22px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      height: 130px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .card-order {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #9E8E7A;
+      margin-bottom: 8px;
+    }
+
+    .card-minutes {
+      font-size: 2.6rem;
+      font-weight: 900;
+      color: #E8DEC8;
+      line-height: 1;
+      white-space: nowrap;
+      margin-bottom: 8px;
+    }
+
+    .card-minutes.urgent { color: #fff; }
+
+    .card-clocktime {
+      font-size: 1rem;
+      color: #9E8E7A;
+      white-space: nowrap;
+    }
+
+    /* Prázdný stav */
+    .card-empty {
+      background: #1D2030;
+      border: 1px dashed #363A4A;
+      border-radius: 16px;
+      padding: 24px 22px;
+      height: 130px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #363A4A;
+      font-size: 0.9rem;
+    }
+
+    /* Spodní info */
+    .footer {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .status {
+      color: #9E8E7A;
+      font-size: 0.82rem;
+    }
+
+    .status .updated { color: #E8DEC8; }
+
+    .datasource {
+      color: #363A4A;
+      font-size: 0.78rem;
+    }
+
+    .datasource a { color: #9E8E7A; text-decoration: none; }
+    .datasource a:hover { color: #E8DEC8; }
+
+    .error-state {
+      background: #3d0000;
+      border: 1px solid #800;
+      border-radius: 12px;
+      padding: 20px 24px;
+      color: #ff8888;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    .loading {
+      color: #3DBDB5;
+      font-size: 1.2rem;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <div id="content">
+    <div class="loading">Načítám odjezdy...</div>
+  </div>
+
+  <div class="footer">
+    <div class="status">
+      Aktualizováno: <span class="updated" id="updated">–</span>
+      &nbsp;·&nbsp; automatická obnova každých 30 s
+    </div>
+    <div class="datasource">
+      Data: <a href="https://mapa.idsjmk.cz" target="_blank">IDS JMK</a> · real-time poloha vozidel (GPS, aktualizace ~10 s)
+    </div>
+  </div>
+
+  <script>
+    function renderCard(dep, order, showLine = false) {
+      if (!dep) {
+        return `<div class="card-empty">Žádný odjezd</div>`;
+      }
+      const isNow = dep.minutes === 0 || dep.timeMark === '**';
+      const urgent = isNow || (dep.minutes !== null && dep.minutes <= 3);
+      const minutesText = isNow ? 'teď' : (dep.minutes !== null ? `${dep.minutes} min` : dep.timeMark);
+      return `
+        <div class="card">
+          <div class="card-order">${order === 0 ? 'Nejbližší' : '2. odjezd'}</div>
+          ${showLine && dep.line ? `<span class="card-line">${dep.line}</span>` : ''}
+          <div class="card-minutes ${urgent ? 'urgent' : ''}">${minutesText}</div>
+          <div class="card-clocktime">odjezd v ${dep.clockTime || '–'}</div>
+        </div>`;
+    }
+
+    async function fetchDepartures() {
+      try {
+        const res = await fetch('/api/departures');
+        const data = await res.json();
+
+        if (data.error) {
+          document.getElementById('content').innerHTML =
+            `<div class="error-state"><strong>Chyba:</strong> ${data.error}</div>`;
+          return;
+        }
+
+        const centrum     = data.centrum     || [];
+        const stefanikova = data.stefanikova || [];
+        const trolejbus   = data.trolejbus   || [];
+
+        document.getElementById('content').innerHTML = `
+          <div class="sections">
+            <div class="section section-salina">
+              <div class="section-title">
+                <span class="highlight highlight-salina">Šalina</span>
+              </div>
+              <div class="columns">
+                <div class="column column-centrum">
+                  <div class="direction-label">směr centrum</div>
+                  ${renderCard(centrum[0], 0)}
+                  ${centrum[1] ? renderCard(centrum[1], 1) : ''}
+                </div>
+                <div class="column column-stefanikova">
+                  <div class="direction-label">směr Štefánikova čtvrť</div>
+                  ${renderCard(stefanikova[0], 0)}
+                  ${stefanikova[1] ? renderCard(stefanikova[1], 1) : ''}
+                </div>
+              </div>
+            </div>
+            <div class="section section-trolej">
+              <div class="section-title">
+                <span class="highlight highlight-trolej">Trolejbus</span>
+              </div>
+              <div class="columns">
+                <div class="column column-trolejbus">
+                  <div class="direction-label">Mendlovo náměstí</div>
+                  ${renderCard(trolejbus[0], 0, true)}
+                  ${trolejbus[1] ? renderCard(trolejbus[1], 1, true) : ''}
+                </div>
+                <div class="column"></div>
+              </div>
+            </div>
+          </div>`;
+
+        document.getElementById('updated').textContent =
+          new Date().toLocaleTimeString('cs-CZ');
+
+      } catch (err) {
+        document.getElementById('content').innerHTML =
+          `<div class="error-state">Nepodařilo se připojit k serveru.<br><small>${err.message}</small></div>`;
+      }
+    }
+
+    fetchDepartures();
+    setInterval(fetchDepartures, 30000);
+  </script>
+
+</body>
+</html>
