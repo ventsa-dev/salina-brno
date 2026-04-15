@@ -41,73 +41,6 @@
       align-items: start;
     }
 
-    @media (max-width: 700px) {
-      body {
-        padding: 16px;
-        gap: 20px;
-      }
-
-      .sections {
-        grid-template-columns: 1fr;
-        column-gap: 0;
-        row-gap: 28px;
-      }
-
-      .columns {
-        gap: 8px;
-      }
-
-      .direction-label {
-        white-space: normal;
-        font-size: 0.6rem;
-        line-height: 1.3;
-        letter-spacing: 0.2px;
-        min-height: 2.6em;
-        overflow: hidden;
-      }
-
-      .column-stefanikova .direction-label {
-        text-align: right;
-      }
-
-      .card {
-        padding: 12px 12px;
-        height: 108px;
-      }
-
-      .card-order {
-        font-size: 0.6rem;
-        margin-bottom: 4px;
-      }
-
-      .card-minutes {
-        font-size: 1.9rem;
-        margin-bottom: 4px;
-      }
-
-      .card-clocktime {
-        font-size: 0.78rem;
-      }
-
-      .card-empty {
-        padding: 12px;
-        height: 108px;
-        font-size: 0.78rem;
-      }
-
-      .card-line {
-        top: 8px;
-        right: 8px;
-        font-size: 0.6rem;
-        padding: 1px 5px;
-      }
-
-      .highlight {
-        font-size: 1.6rem;
-        padding: 2px 16px 4px;
-      }
-    }
-
     .section {
       display: flex;
       flex-direction: column;
@@ -351,6 +284,62 @@
     @keyframes pulse {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.4; }
+    }
+
+    /* === RESPONSIVE — musí být POSLEDNÍ aby přebilo base styly === */
+    @media (max-width: 700px) {
+      body {
+        padding: 16px;
+        gap: 20px;
+      }
+      .sections {
+        grid-template-columns: 1fr;
+        column-gap: 0;
+        row-gap: 28px;
+      }
+      .columns {
+        gap: 8px;
+      }
+      .direction-label {
+        white-space: normal;
+        font-size: 0.6rem;
+        line-height: 1.3;
+        letter-spacing: 0.2px;
+        min-height: 2.6em;
+      }
+      .column-stefanikova .direction-label {
+        text-align: right;
+      }
+      .card {
+        padding: 12px 12px;
+        height: 108px;
+      }
+      .card-order {
+        font-size: 0.6rem;
+        margin-bottom: 4px;
+      }
+      .card-minutes {
+        font-size: 1.9rem;
+        margin-bottom: 4px;
+      }
+      .card-clocktime {
+        font-size: 0.78rem;
+      }
+      .card-empty {
+        padding: 12px;
+        height: 108px;
+        font-size: 0.78rem;
+      }
+      .card-line {
+        top: 8px;
+        right: 8px;
+        font-size: 0.6rem;
+        padding: 1px 5px;
+      }
+      .highlight {
+        font-size: 1.6rem;
+        padding: 2px 16px 4px;
+      }
     }
 
   </style>
