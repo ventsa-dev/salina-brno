@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:idsjmk.idos.cz)",
+      "WebFetch(domain:www.dpmb.cz)",
+      "WebFetch(domain:mapa.idsjmk.cz)",
+      "WebFetch(domain:www.jrbrno.cz)"
+    ]
+  }
+}

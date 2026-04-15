@@ -4,6 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Šalina</title>
+  <meta name="theme-color" content="#1D2030">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Šalina">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -141,7 +148,6 @@
       margin-bottom: 8px;
     }
 
-    .card-minutes.urgent { color: #fff; }
 
     .card-clocktime {
       font-size: 1rem;
@@ -186,6 +192,84 @@
     .datasource a { color: #9E8E7A; text-decoration: none; }
     .datasource a:hover { color: #E8DEC8; }
 
+    /* Proklikávací dlaždice */
+    .card-link {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      border-radius: 16px;
+    }
+
+    .card-link:hover .card:not([class*="urgency"]) {
+      border-color: #9E8E7A;
+      background: #2c3050;
+    }
+
+    .card-link:hover .card.urgency-green {
+      background:
+        linear-gradient(#2c3050, #2c3050) padding-box,
+        conic-gradient(from var(--ba), #3a6b4a 0%, #3a6b4a 82%, #5aaa78 92%, #5aaa78 100%) border-box;
+    }
+    .card-link:hover .card.urgency-amber {
+      background:
+        linear-gradient(#2c3050, #2c3050) padding-box,
+        conic-gradient(from var(--ba), #7a5f2a 0%, #7a5f2a 82%, #b08040 92%, #b08040 100%) border-box;
+    }
+    .card-link:hover .card.urgency-red {
+      background:
+        linear-gradient(#2c3050, #2c3050) padding-box,
+        conic-gradient(from var(--ba), #7a2a2a 0%, #7a2a2a 82%, #b85050 92%, #b85050 100%) border-box;
+    }
+    .card-link:hover .card.urgency-now {
+      background: #2c3050;
+    }
+
+    .card-link:hover .card-empty {
+      border-color: #9E8E7A;
+    }
+
+    /* Animovaný border — @property pro interpolaci úhlu */
+    @property --ba {
+      syntax: '<angle>';
+      inherits: false;
+      initial-value: 0deg;
+    }
+
+    @keyframes border-spin {
+      to { --ba: 360deg; }
+    }
+
+    /* Podmíněné outline + barva textu — jen nejbližší dlaždice */
+    .card.urgency-green,
+    .card.urgency-amber,
+    .card.urgency-red {
+      border: 1px solid transparent;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      animation: border-spin var(--anim-duration, 7000ms) linear infinite;
+    }
+
+    .card.urgency-now {
+      border: 1px solid #b85050;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+
+    .card.urgency-green {
+      background:
+        linear-gradient(#252838, #252838) padding-box,
+        conic-gradient(from var(--ba), #3a6b4a 0%, #3a6b4a 82%, #5aaa78 92%, #5aaa78 100%) border-box;
+    }
+    .card.urgency-amber {
+      background:
+        linear-gradient(#252838, #252838) padding-box,
+        conic-gradient(from var(--ba), #7a5f2a 0%, #7a5f2a 82%, #b08040 92%, #b08040 100%) border-box;
+    }
+    .card.urgency-red {
+      background:
+        linear-gradient(#252838, #252838) padding-box,
+        conic-gradient(from var(--ba), #7a2a2a 0%, #7a2a2a 82%, #b85050 92%, #b85050 100%) border-box;
+    }
+
+
     .error-state {
       background: #3d0000;
       border: 1px solid #800;
@@ -226,20 +310,32 @@
   </div>
 
   <script>
-    function renderCard(dep, order, showLine = false) {
-      if (!dep) {
-        return `<div class="card-empty">Žádný odjezd</div>`;
-      }
-      const isNow = dep.minutes === 0 || dep.timeMark === '**';
-      const urgent = isNow || (dep.minutes !== null && dep.minutes <= 3);
-      const minutesText = isNow ? 'teď' : (dep.minutes !== null ? `${dep.minutes} min` : dep.timeMark);
-      return `
-        <div class="card">
+    function urgencyClass(dep, order) {
+      if (order !== 0 || !dep) return '';
+      const m = dep.minutes;
+      const isNow = dep.timeMark === '**' || m === 0;
+      if (isNow) return 'urgency-now';
+      if (m !== null && m <= 2) return 'urgency-red';
+      if (m !== null && m <= 4) return 'urgency-amber';
+      return 'urgency-green';
+    }
+
+    function renderCard(dep, order, showLine = false, url = null) {
+      const cls = urgencyClass(dep, order);
+      const animStyle = (cls && cls !== 'urgency-now' && dep && dep.minutes)
+        ? ` style="--anim-duration: ${dep.minutes * 1000}ms"` : '';
+      const inner = dep ? `
+        <div class="card ${cls}"${animStyle}>
           <div class="card-order">${order === 0 ? 'Nejbližší' : '2. odjezd'}</div>
           ${showLine && dep.line ? `<span class="card-line">${dep.line}</span>` : ''}
-          <div class="card-minutes ${urgent ? 'urgent' : ''}">${minutesText}</div>
+          <div class="card-minutes">${(dep.minutes === 0 || dep.timeMark === '**') ? 'teď' : (dep.minutes !== null ? `${dep.minutes} min` : dep.timeMark)}</div>
           <div class="card-clocktime">odjezd v ${dep.clockTime || '–'}</div>
-        </div>`;
+        </div>` : `<div class="card-empty">Žádný odjezd</div>`;
+
+      if (url) {
+        return `<a class="card-link" href="${url}" target="_blank" rel="noopener">${inner}</a>`;
+      }
+      return inner;
     }
 
     async function fetchDepartures() {
@@ -266,13 +362,13 @@
               <div class="columns">
                 <div class="column column-centrum">
                   <div class="direction-label">směr centrum</div>
-                  ${renderCard(centrum[0], 0)}
-                  ${centrum[1] ? renderCard(centrum[1], 1) : ''}
+                  ${renderCard(centrum[0], 0, false, 'https://www.jrbrno.cz/L5S1Z266')}
+                  ${centrum[1] ? renderCard(centrum[1], 1, false, 'https://www.jrbrno.cz/L5S1Z266') : ''}
                 </div>
                 <div class="column column-stefanikova">
                   <div class="direction-label">směr Štefánikova čtvrť</div>
-                  ${renderCard(stefanikova[0], 0)}
-                  ${stefanikova[1] ? renderCard(stefanikova[1], 1) : ''}
+                  ${renderCard(stefanikova[0], 0, false, 'https://www.jrbrno.cz/L5S2Z266')}
+                  ${stefanikova[1] ? renderCard(stefanikova[1], 1, false, 'https://www.jrbrno.cz/L5S2Z266') : ''}
                 </div>
               </div>
             </div>
@@ -282,9 +378,9 @@
               </div>
               <div class="columns">
                 <div class="column column-trolejbus">
-                  <div class="direction-label">Mendlovo náměstí</div>
-                  ${renderCard(trolejbus[0], 0, true)}
-                  ${trolejbus[1] ? renderCard(trolejbus[1], 1, true) : ''}
+                  <div class="direction-label">směr Mendlák</div>
+                  ${renderCard(trolejbus[0], 0, true, trolejbus[0] ? `https://www.jrbrno.cz/L${trolejbus[0].line}S1Z428` : null)}
+                  ${trolejbus[1] ? renderCard(trolejbus[1], 1, true, `https://www.jrbrno.cz/L${trolejbus[1].line}S1Z428`) : ''}
                 </div>
                 <div class="column"></div>
               </div>
@@ -302,6 +398,10 @@
 
     fetchDepartures();
     setInterval(fetchDepartures, 30000);
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js');
+    }
   </script>
 
 </body>
