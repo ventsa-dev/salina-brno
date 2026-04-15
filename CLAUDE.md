@@ -29,8 +29,30 @@ node server.js
 # otevři http://localhost:3000
 ```
 
+## Jízdní řády (jrbrno.cz)
+
+| Sekce | URL |
+|---|---|
+| Šalina směr centrum | `https://www.jrbrno.cz/L5S1Z266` |
+| Šalina směr Štefánikova čtvrť | `https://www.jrbrno.cz/L5S2Z266` |
+| Trolejbus 25 → Mendlovo | `https://www.jrbrno.cz/L25S1Z428` |
+| Trolejbus 26 → Mendlovo | `https://www.jrbrno.cz/L26S1Z428` |
+
+## Hosting
+
+- **Railway:** `https://odjezdy.up.railway.app`
+- GitHub repo: `ventsa-dev/salina-brno` (main branch = auto-deploy)
+- Deploy: `git push` → Railway nasadí automaticky
+
+## PWA
+
+- `public/manifest.json` + `public/sw.js` + ikony v `public/icons/`
+- Ikony se generují: `node generate-icons.js`
+- SW cache verze: aktuálně `salina-v3`
+
 ## Aktuální stav
 
-Aplikace je funkční. Příště řešit:
-- Automatické spuštění serveru při startu Macu
+Aplikace je funkční a nasazená. Příště řešit:
+- **Opravit mobile layout na telefonu** — lokálně funguje, na Railway se zobrazuje stará verze (SW cache problém). Zkusit: smazat appku z telefonu, otevřít znovu přes prohlížeč
+- Automatické spuštění lokálního serveru při startu Macu
 - Případně přidat další zastávky nebo linky
