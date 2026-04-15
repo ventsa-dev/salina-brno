@@ -1,6 +1,7 @@
 const express = require('express');
 const fetch = require('node-fetch');
 const path = require('path');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,6 +18,14 @@ const TROLEJ_LINES = ['25', '26'];
 const PLATFORM_MENDLOVO = 'Pionýrská,Lesná';
 
 app.use(express.static(path.join(__dirname, 'public')));
+
+const apiLimiter = rateLimit({
+  windowMs: 10 * 1000,   // 10 sekund
+  max: 5,                 // max 5 požadavků za okno
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use('/api/', apiLimiter);
 
 function parseMinutes(timeMark) {
   if (!timeMark) return null;
