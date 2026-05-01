@@ -58,9 +58,16 @@ function mapDeparture(dep) {
   };
 }
 
+// Token z mapa.idsjmk.cz — vyžadován od jara 2026
+const IDS_TOKEN = 'fFdFQnxkNjJiYzY1Zi1hYmM0LTRmNDEtYjg5Yy03MmE2YjNhMzI3YWU=';
+
 async function fetchStop(stopId) {
   const response = await fetch(`https://mapa.idsjmk.cz/api/Departures?stopid=${stopId}`, {
-    headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' }
+    headers: {
+      'User-Agent': 'Mozilla/5.0',
+      'Accept': 'application/json',
+      'X-Access-Token': IDS_TOKEN,
+    }
   });
   if (!response.ok) throw new Error('Chyba při načítání dat z IDS JMK');
   return response.json();
